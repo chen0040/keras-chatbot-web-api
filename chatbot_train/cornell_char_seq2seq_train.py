@@ -4,8 +4,8 @@ from keras.layers import Input, LSTM, Dense
 import numpy as np
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
-HIDDEN_UNITS = 256
+NUM_EPOCHS = 60
+HIDDEN_UNITS = 64
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
 input_texts = []

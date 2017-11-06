@@ -1,5 +1,6 @@
-from flask import Flask, request, send_from_directory, redirect, render_template, flash, url_for
-from chatbot_web.wordvec_cnn_predict import WordVecCnn
+from flask import Flask, request, send_from_directory, redirect, render_template, flash, url_for, jsonify, \
+    make_response, abort
+from chatbot_web.cornell_char_seq2seq_predict import CornellCharChatBot
 
 app = Flask(__name__)
 app.config.from_object(__name__)  # load config from this file , flaskr.py
@@ -8,17 +9,11 @@ app.config.from_object(__name__)  # load config from this file , flaskr.py
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-wordvec_cnn_classifier = WordVecCnn()
-wordvec_cnn_classifier.test_run('i liked the Da Vinci Code a lot.')
+cornell_char_chat_bot = CornellCharChatBot()
+cornell_char_chat_bot.test_run()
 
-lstm_sigmoid_c = WordVecCnn()
-lstm_sigmoid_c.test_run('i liked the Da Vinci Code a lot.')
+conversations = []
 
-lstm_softmax_c = WordVecCnn()
-lstm_softmax_c.test_run('i liked the Da Vinci Code a lot.')
-
-bidirectional_lstm_softmax_c = WordVecCnn()
-bidirectional_lstm_softmax_c.test_run('i like the Da Vinci Code a lot.')
 
 @app.route('/')
 def home():
@@ -30,8 +25,8 @@ def about():
     return 'About Us'
 
 
-@app.route('/wordvec_cnn', methods=['POST', 'GET'])
-def wordvec_cnn():
+@app.route('/cornell_char_reply', methods=['POST', 'GET'])
+def cornell_char_reply():
     if request.method == 'POST':
         if 'sentence' not in request.form:
             flash('No sentence post')
@@ -41,59 +36,41 @@ def wordvec_cnn():
             redirect(request.url)
         else:
             sent = request.form['sentence']
-            sentiments = wordvec_cnn_classifier.predict(sent)
-            return render_template('wordvec_cnn_result.html', sentence=sent, sentiments=sentiments)
-    return render_template('wordvec_cnn.html')
+            conversations.append('BOT: ' + sent)
+            reply = cornell_char_chat_bot.reply(sent)
+            conversations.append('YOU: ' + reply)
+    return render_template('cornell_char_reply.html', conversations=conversations)
 
 
-@app.route('/lstm_sigmoid', methods=['POST', 'GET'])
-def lstm_sigmoid():
+@app.route('/chatbot_reply', method=['POST', 'GET'])
+def chatbot_reply():
     if request.method == 'POST':
-        if 'sentence' not in request.form:
-            flash('No sentence post')
-            redirect(request.url)
-        elif request.form['sentence'] == '':
-            flash('No sentence')
-            redirect(request.url)
-        else:
-            sent = request.form['sentence']
-            positive_sentiment = lstm_sigmoid_c.predict(sent)
-            return render_template('lstm_sigmoid_result.html', sentence=sent,
-                                   sentiments=[positive_sentiment, 1 - positive_sentiment])
-    return render_template('lstm_sigmoid.html')
+        if not request.json or 'sentence' not in request.json or 'level' not in request.json or 'dialogs' not in request.json:
+            abort(400)
+        sentence = request.json['sentence']
+        level = request.json['level']
+        dialogs = request.json['dialogs']
+    else:
+        sentence = request.args.get('sentence')
+        level = request.args.get('level')
+        dialogs = request.args.get('dialogs')
+
+    target_text = sentence
+    if level == 'char' and dialogs == 'cornell':
+        target_text = cornell_char_chat_bot.reply(sentence)
+    elif level == 'word' and dialogs == 'cornell':
+        target_text = cornell_char_chat_bot.reply(sentence)
+    return jsonify({
+        'sentence': sentence,
+        'reply': target_text,
+        'dialogs': dialogs,
+        'level': level
+    })
 
 
-@app.route('/lstm_softmax', methods=['POST', 'GET'])
-def lstm_softmax():
-    if request.method == 'POST':
-        if 'sentence' not in request.form:
-            flash('No sentence post')
-            redirect(request.url)
-        elif request.form['sentence'] == '':
-            flash('No sentence')
-            redirect(request.url)
-        else:
-            sent = request.form['sentence']
-            sentiments = lstm_softmax_c.predict(sent)
-            return render_template('lstm_softmax_result.html', sentence=sent,
-                                   sentiments=sentiments)
-    return render_template('lstm_softmax.html')
-
-@app.route('/bidirectional_lstm_softmax', methods=['POST', 'GET'])
-def bidirectional_lstm_softmax():
-    if request.method == 'POST':
-        if 'sentence' not in request.form:
-            flash('No sentence post')
-            redirect(request.url)
-        elif request.form['sentence'] == '':
-            flash('No sentence')
-            redirect(request.url)
-        else:
-            sent = request.form['sentence']
-            sentiments = bidirectional_lstm_softmax_c.predict(sent)
-            return render_template('bidirectional_lstm_softmax_result.html', sentence=sent,
-                                   sentiments=sentiments)
-    return render_template('bidirectional_lstm_softmax.html')
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 if __name__ == '__main__':

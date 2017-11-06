@@ -5,11 +5,14 @@ from keras.preprocessing.sequence import pad_sequences
 from collections import Counter
 import nltk
 import numpy as np
+from sklearn.cross_validation import train_test_split
+
+np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
-HIDDEN_UNITS = 256
-MAX_VOCAB_SIZE = 4000
+NUM_EPOCHS = 2
+HIDDEN_UNITS = 64
+MAX_VOCAB_SIZE = 10000
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
 input_counter = Counter()
@@ -18,13 +21,13 @@ target_counter = Counter()
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 input_texts = []
 target_texts = []
-for idx,line in enumerate(lines):
+for idx, line in enumerate(lines):
     if idx % 2 == 0:
         input_texts.append(line)
     else:
         target_text = '[START] ' + line + ' [END]'
         target_texts.append(target_text)
-        
+
 for input_text, target_text in zip(input_texts, target_texts):
     input_words = [w.lower() for w in nltk.word_tokenize(input_text)]
     target_words = [w.lower() for w in nltk.word_tokenize(target_text)]
@@ -74,8 +77,6 @@ for input_text, target_text in zip(input_texts, target_texts):
     encoder_max_seq_length = max(len(encoder_input_wids), encoder_max_seq_length)
     decoder_max_seq_length = max(len(target_words), decoder_max_seq_length)
 
-encoder_input_data = pad_sequences(encoder_input_data, encoder_max_seq_length)
-
 context = dict()
 context['num_encoder_tokens'] = num_encoder_tokens
 context['num_decoder_tokens'] = num_decoder_tokens
@@ -85,19 +86,28 @@ context['decoder_max_seq_length'] = decoder_max_seq_length
 print(context)
 np.save('models/cornell/word-context.npy', context)
 
-decoder_target_data = np.zeros(shape=(len(input_texts), decoder_max_seq_length, num_decoder_tokens))
-decoder_input_data = np.zeros(shape=(len(input_texts), decoder_max_seq_length, num_decoder_tokens))
-for lineIdx, (input_text, target_text) in enumerate(zip(input_texts, target_texts)):
-    target_words = [w.lower() for w in nltk.word_tokenize(target_text)]
-    for idx, w in enumerate(target_words):
-        w2idx = 0  # default [UNK]
-        if w in target_word2idx:
-            w2idx = target_word2idx[w]
-        decoder_input_data[lineIdx, idx, w2idx] = 1
-        if idx > 0:
-            decoder_target_data[lineIdx, idx-1, w2idx] = 1
 
-encoder_inputs = Input(shape=(None, ), name='encoder_inputs')
+def generate_batch(input_data, output_text_data):
+    num_batches = len(input_data) // BATCH_SIZE
+    for batchIdx in range(0, num_batches - 1):
+        start = batchIdx * BATCH_SIZE
+        end = (batchIdx + 1) * BATCH_SIZE
+        encoder_input_data_batch = pad_sequences(input_data[start:end], encoder_max_seq_length)
+        decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
+        decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
+        for lineIdx, target_text in enumerate(output_text_data[start:end]):
+            target_words = [w.lower() for w in nltk.word_tokenize(target_text)]
+            for idx, w in enumerate(target_words):
+                w2idx = 0  # default [UNK]
+                if w in target_word2idx:
+                    w2idx = target_word2idx[w]
+                decoder_input_data_batch[lineIdx, idx, w2idx] = 1
+                if idx > 0:
+                    decoder_target_data_batch[lineIdx, idx - 1, w2idx] = 1
+        yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
+
+
+encoder_inputs = Input(shape=(None,), name='encoder_inputs')
 encoder_embedding = Embedding(input_dim=num_encoder_tokens, output_dim=HIDDEN_UNITS,
                               input_length=encoder_max_seq_length, name='encoder_embedding')
 encoder_lstm = LSTM(units=HIDDEN_UNITS, return_state=True, name='encoder_lstm')
@@ -114,16 +124,19 @@ decoder_outputs = decoder_dense(decoder_outputs)
 model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
-model.fit_generator([encoder_input_data, decoder_input_data], decoder_target_data, batch_size=BATCH_SIZE, epochs=NUM_EPOCHS,
-          verbose=1, validation_split=0.2)
+
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(encoder_input_data, target_texts, test_size=0.2, random_state=42)
+
+train_gen = generate_batch(Xtrain, Ytrain)
+test_gen = generate_batch(Xtest, Ytest)
+
+train_num_batches = len(Xtrain) // BATCH_SIZE
+test_num_batches = len(Xtest) // BATCH_SIZE
+
+model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
+                    epochs=NUM_EPOCHS,
+                    verbose=1, validation_data=test_gen, validation_steps=test_num_batches)
 
 json = model.to_json()
 open('models/cornell/word-architecture.json', 'w').write(json)
 model.save_weights('models/cornell/word-weights.h5')
-
-
-
-
-
-
-
