@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+    <hr />
+    You said: {{ sentence }}
+    <hr />
+    <ul>
+        <li>Positive Sentiment: {{ sentiments[0] }}</li>
+        <li>Negative Sentiment: {{ sentiments[1] }}</li>
+    </ul>
+
+    <hr />
+    <a href="{{ url_for('lstm_softmax') }}">Try another one</a>
+{% endblock %}
