@@ -2,8 +2,9 @@ from keras.models import Model, model_from_json
 from keras.layers import Input, LSTM, Dense, Embedding
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
+import nltk
 
-HIDDEN_UNITS = 256
+HIDDEN_UNITS = 64
 
 
 class CornellWordChatBot(object):
@@ -20,11 +21,11 @@ class CornellWordChatBot(object):
     num_decoder_tokens = None
 
     def __init__(self):
-        self.input_word2idx = np.load('../translator_train/models/eng-to-cmn/eng-to-cmn-word-input-word2idx.npy').item()
-        self.input_idx2word = np.load('../translator_train/models/eng-to-cmn/eng-to-cmn-word-input-idx2word.npy').item()
-        self.target_word2idx = np.load('../translator_train/models/eng-to-cmn/eng-to-cmn-word-target-word2idx.npy').item()
-        self.target_idx2word = np.load('../translator_train/models/eng-to-cmn/eng-to-cmn-word-target-idx2word.npy').item()
-        context = np.load('../translator_train/models/eng-to-cmn/eng-to-cmn-word-context.npy').item()
+        self.input_word2idx = np.load('../chatbot_train/models/cornell/wordword-input-word2idx.npy').item()
+        self.input_idx2word = np.load('../chatbot_train/models/cornell/wordword-input-idx2word.npy').item()
+        self.target_word2idx = np.load('../chatbot_train/models/cornell/wordword-target-word2idx.npy').item()
+        self.target_idx2word = np.load('../chatbot_train/models/cornell/wordword-target-idx2word.npy').item()
+        context = np.load('../chatbot_train/models/cornell/wordword-context.npy').item()
         self.max_encoder_seq_length = context['encoder_max_seq_length']
         self.max_decoder_seq_length = context['decoder_max_seq_length']
         self.num_encoder_tokens = context['num_encoder_tokens']
@@ -45,9 +46,9 @@ class CornellWordChatBot(object):
 
         self.model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
-        # model_json = open('../translator_train/models/eng-to-cmn/eng-to-cmn-word-architecture.json', 'r').read()
+        # model_json = open('../chatbot_train/models/cornell/wordword-architecture.json', 'r').read()
         # self.model = model_from_json(model_json)
-        self.model.load_weights('../translator_train/models/eng-to-cmn/eng-to-cmn-word-weights.h5')
+        self.model.load_weights('../chatbot_train/models/cornell/wordword-weights.h5')
         self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
 
         self.encoder_model = Model(encoder_inputs, encoder_states)
@@ -58,10 +59,10 @@ class CornellWordChatBot(object):
         decoder_outputs = decoder_dense(decoder_outputs)
         self.decoder_model = Model([decoder_inputs] + decoder_state_inputs, [decoder_outputs] + decoder_states)
 
-    def translate_lang(self, input_text):
+    def reply(self, input_text):
         input_seq = []
         input_wids = []
-        for word in input_text:
+        for word in nltk.word_tokenize(input_text):
             idx = 1  # default [UNK]
             if word in self.input_word2idx:
                 idx = self.input_word2idx[word]
@@ -90,9 +91,9 @@ class CornellWordChatBot(object):
         return target_text
 
     def test_run(self):
-        print(self.translate_lang('Be nice.'))
-        print(self.translate_lang('Drop it!'))
-        print(self.translate_lang('Get out!'))
+        print(self.reply('Be nice.'))
+        print(self.reply('Drop it!'))
+        print(self.reply('Get out!'))
 
 
 if __name__ == '__main__':

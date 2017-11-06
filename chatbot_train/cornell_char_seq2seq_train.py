@@ -16,9 +16,9 @@ target_characters = set()
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 for idx,line in enumerate(lines):
     if idx % 2 == 0:
-        input_texts.append(line)
+        input_texts.append(line.lower())
     else:
-        target_text = '\t' + line + '\n'
+        target_text = '\t' + line.lower() + '\n'
         target_texts.append(target_text)
 
 for input_text, target_text in zip(input_texts, target_texts):

@@ -10,7 +10,7 @@ from sklearn.cross_validation import train_test_split
 np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 2
+NUM_EPOCHS = 100
 HIDDEN_UNITS = 64
 MAX_VOCAB_SIZE = 10000
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
@@ -21,16 +21,16 @@ target_counter = Counter()
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 input_texts = []
 target_texts = []
-for idx, line in enumerate(lines):
+for idx, line in enumerate(lines[0:1028]):
     if idx % 2 == 0:
-        input_texts.append(line)
+        input_texts.append(line.lower())
     else:
-        target_text = '[START] ' + line + ' [END]'
+        target_text = '[START] ' + line.lower() + ' [END]'
         target_texts.append(target_text)
 
 for input_text, target_text in zip(input_texts, target_texts):
-    input_words = [w.lower() for w in nltk.word_tokenize(input_text)]
-    target_words = [w.lower() for w in nltk.word_tokenize(target_text)]
+    input_words = [w for w in nltk.word_tokenize(input_text)]
+    target_words = [w for w in nltk.word_tokenize(target_text)]
     for w in input_words:
         input_counter[w] += 1
     for w in target_words:
@@ -64,8 +64,8 @@ encoder_max_seq_length = 0
 decoder_max_seq_length = 0
 
 for input_text, target_text in zip(input_texts, target_texts):
-    input_words = [w.lower() for w in nltk.word_tokenize(input_text)]
-    target_words = [w.lower() for w in nltk.word_tokenize(target_text)]
+    input_words = [w for w in nltk.word_tokenize(input_text)]
+    target_words = [w for w in nltk.word_tokenize(target_text)]
     encoder_input_wids = []
     for w in input_words:
         w2idx = 1  # default [UNK]
@@ -96,7 +96,7 @@ def generate_batch(input_data, output_text_data):
         decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
         decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
         for lineIdx, target_text in enumerate(output_text_data[start:end]):
-            target_words = [w.lower() for w in nltk.word_tokenize(target_text)]
+            target_words = [w for w in nltk.word_tokenize(target_text)]
             for idx, w in enumerate(target_words):
                 w2idx = 0  # default [UNK]
                 if w in target_word2idx:
@@ -126,6 +126,9 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(encoder_input_data, target_texts, test_size=0.2, random_state=42)
+
+print(len(Xtrain))
+print(len(Xtest))
 
 train_gen = generate_batch(Xtrain, Ytrain)
 test_gen = generate_batch(Xtest, Ytest)

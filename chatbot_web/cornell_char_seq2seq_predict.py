@@ -20,6 +20,7 @@ class CornellCharChatBot(object):
 
     def __init__(self):
         self.input_char2idx = np.load('../chatbot_train/models/cornell/char-input-char2idx.npy').item()
+        print(self.input_char2idx)
         self.input_idx2char = np.load('../chatbot_train/models/cornell/char-input-idx2char.npy').item()
         self.target_char2idx = np.load('../chatbot_train/models/cornell/char-target-char2idx.npy').item()
         self.target_idx2char = np.load('../chatbot_train/models/cornell/char-target-idx2char.npy').item()
@@ -57,12 +58,12 @@ class CornellCharChatBot(object):
 
     def reply(self, input_text):
         input_seq = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens))
-        for idx, char in enumerate(input_text):
+        for idx, char in enumerate(input_text.lower()):
             if char in self.input_char2idx:
                 idx2 = self.input_char2idx[char]
                 input_seq[0, idx, idx2] = 1
         states_value = self.encoder_model.predict(input_seq)
-        print(states_value)
+
         target_seq = np.zeros((1, 1, self.num_decoder_tokens))
         target_seq[0, 0, self.target_char2idx['\t']] = 1
         target_text = ''
