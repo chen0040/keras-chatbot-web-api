@@ -10,10 +10,10 @@ from sklearn.cross_validation import train_test_split
 np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
+NUM_EPOCHS = 30
 HIDDEN_UNITS = 256
-MAX_INPUT_SEQ_LENGTH = 50
-MAX_TARGET_SEQ_LENGTH = 50
+MAX_INPUT_SEQ_LENGTH = 100
+MAX_TARGET_SEQ_LENGTH = 100
 MAX_VOCAB_SIZE = 10000
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
@@ -24,23 +24,23 @@ lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 input_texts = []
 target_texts = []
 
-for idx, line in enumerate(lines):
-    if idx % 2 == 0:
-        input_words = [w.lower() for w in nltk.word_tokenize(line)]
-        if len(input_words) > MAX_INPUT_SEQ_LENGTH:
-            input_words = input_words[0:MAX_INPUT_SEQ_LENGTH]
-        input_texts.append(input_words)
-        for w in input_words:
-            input_counter[w] += 1
-    else:
-        target_words = [w.lower() for w in nltk.word_tokenize(line)]
-        if len(target_words) > MAX_TARGET_SEQ_LENGTH:
-            target_words = target_words[0:MAX_TARGET_SEQ_LENGTH]
-        target_words.insert(0, 'START')
-        target_words.append('END')
-        for w in target_words:
-            target_counter[w] += 1
-        target_texts.append(target_words)
+prev_words = ['SILENT']
+for line in lines:
+    input_texts.append(prev_words)
+    for w in prev_words:
+        input_counter[w] += 1
+
+    next_words = [w.lower() for w in nltk.word_tokenize(line)]
+    if len(next_words) > MAX_TARGET_SEQ_LENGTH:
+        next_words = next_words[0:MAX_TARGET_SEQ_LENGTH]
+    target_words = next_words[:]
+    target_words.insert(0, 'START')
+    target_words.append('END')
+    for w in target_words:
+        target_counter[w] += 1
+    target_texts.append(target_words)
+
+    prev_words = next_words
 
 input_word2idx = dict()
 target_word2idx = dict()

@@ -4,7 +4,7 @@ from keras.layers import Input, LSTM, Dense
 import numpy as np
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
+NUM_EPOCHS = 30
 HIDDEN_UNITS = 256
 MAX_INPUT_SEQ_LENGTH = 250
 MAX_TARGET_SEQ_LENGTH = 250
@@ -16,18 +16,17 @@ input_characters = set()
 target_characters = set()
 
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
-for idx,line in enumerate(lines):
-    if idx % 2 == 0:
-        input_text = line.lower()
-        if len(input_text) > MAX_INPUT_SEQ_LENGTH:
-            input_text = input_text[0:MAX_INPUT_SEQ_LENGTH]
-        input_texts.append(input_text)
-    else:
-        target_text = line.lower()
-        if len(target_text) > MAX_TARGET_SEQ_LENGTH:
-            target_text = target_text[0:MAX_TARGET_SEQ_LENGTH]
-        target_text = '\t' + target_text + '\n'
-        target_texts.append(target_text)
+prev_line = 'SILENT'
+for line in lines:
+    input_texts.append(prev_line)
+
+    next_line = line.lower()
+    if len(next_line) > MAX_TARGET_SEQ_LENGTH:
+        next_line = next_line[0:MAX_TARGET_SEQ_LENGTH]
+    target_text = '\t' + next_line + '\n'
+    target_texts.append(target_text)
+
+    prev_line = next_line
 
 for input_text, target_text in zip(input_texts, target_texts):
     for char in input_text:
