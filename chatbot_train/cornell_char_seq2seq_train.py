@@ -16,15 +16,16 @@ input_characters = set()
 target_characters = set()
 
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
-prev_line = 'SILENT'
+prev_line = ''
 for line in lines:
-    input_texts.append(prev_line)
-
     next_line = line.lower()
     if len(next_line) > MAX_TARGET_SEQ_LENGTH:
         next_line = next_line[0:MAX_TARGET_SEQ_LENGTH]
-    target_text = '\t' + next_line + '\n'
-    target_texts.append(target_text)
+
+    if prev_line != '':
+        input_texts.append(prev_line)
+        target_text = '\t' + next_line + '\n'
+        target_texts.append(target_text)
 
     prev_line = next_line
 
