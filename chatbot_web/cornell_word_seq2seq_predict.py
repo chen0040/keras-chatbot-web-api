@@ -96,7 +96,7 @@ class CornellWordChatBot(object):
 
     def test_run(self):
         print(self.reply('do you listen to this crap?'))
-        print(self.reply('Drop it!'))
+        print(self.reply('Did you change your hair?'))
         print(self.reply('Get out!'))
 
 

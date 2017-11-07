@@ -10,7 +10,7 @@ from sklearn.cross_validation import train_test_split
 np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 2
+NUM_EPOCHS = 100
 HIDDEN_UNITS = 256
 MAX_INPUT_SEQ_LENGTH = 50
 MAX_TARGET_SEQ_LENGTH = 50

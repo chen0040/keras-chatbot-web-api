@@ -4,7 +4,7 @@ from keras.layers import Input, LSTM, Dense
 import numpy as np
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 60
+NUM_EPOCHS = 100
 HIDDEN_UNITS = 256
 MAX_INPUT_SEQ_LENGTH = 250
 MAX_TARGET_SEQ_LENGTH = 250
