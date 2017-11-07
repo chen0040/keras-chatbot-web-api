@@ -36,10 +36,10 @@ for idx, line in enumerate(lines):
         target_words = [w.lower() for w in nltk.word_tokenize(line)]
         if len(target_words) > MAX_TARGET_SEQ_LENGTH:
             target_words = target_words[0:MAX_TARGET_SEQ_LENGTH]
-        for w in target_words:
-            target_counter[w] += 1
         target_words.insert(0, 'START')
         target_words.append('END')
+        for w in target_words:
+            target_counter[w] += 1
         target_texts.append(target_words)
 
 input_word2idx = dict()
