@@ -2,8 +2,8 @@ from keras.models import Model, model_from_json
 from keras.layers import Input, LSTM, Dense
 import numpy as np
 
-HIDDEN_UNITS = 64
-
+HIDDEN_UNITS = 256
+MAX_INPUT_SEQ_LENGTH = 250
 
 class CornellCharChatBot(object):
     model = None
@@ -57,6 +57,8 @@ class CornellCharChatBot(object):
         self.decoder_model = Model([decoder_inputs] + decoder_state_inputs, [decoder_outputs] + decoder_states)
 
     def reply(self, input_text):
+        if len(input_text) > MAX_INPUT_SEQ_LENGTH:
+            input_text = input_text[0:MAX_INPUT_SEQ_LENGTH]
         input_seq = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens))
         for idx, char in enumerate(input_text.lower()):
             if char in self.input_char2idx:

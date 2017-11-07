@@ -4,7 +4,7 @@ from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import nltk
 
-HIDDEN_UNITS = 64
+HIDDEN_UNITS = 256
 
 
 class CornellWordChatBot(object):
@@ -21,11 +21,11 @@ class CornellWordChatBot(object):
     num_decoder_tokens = None
 
     def __init__(self):
-        self.input_word2idx = np.load('../chatbot_train/models/cornell/wordword-input-word2idx.npy').item()
-        self.input_idx2word = np.load('../chatbot_train/models/cornell/wordword-input-idx2word.npy').item()
-        self.target_word2idx = np.load('../chatbot_train/models/cornell/wordword-target-word2idx.npy').item()
-        self.target_idx2word = np.load('../chatbot_train/models/cornell/wordword-target-idx2word.npy').item()
-        context = np.load('../chatbot_train/models/cornell/wordword-context.npy').item()
+        self.input_word2idx = np.load('../chatbot_train/models/cornell/word-input-word2idx.npy').item()
+        self.input_idx2word = np.load('../chatbot_train/models/cornell/word-input-idx2word.npy').item()
+        self.target_word2idx = np.load('../chatbot_train/models/cornell/word-target-word2idx.npy').item()
+        self.target_idx2word = np.load('../chatbot_train/models/cornell/word-target-idx2word.npy').item()
+        context = np.load('../chatbot_train/models/cornell/word-context.npy').item()
         self.max_encoder_seq_length = context['encoder_max_seq_length']
         self.max_decoder_seq_length = context['decoder_max_seq_length']
         self.num_encoder_tokens = context['num_encoder_tokens']
@@ -46,9 +46,9 @@ class CornellWordChatBot(object):
 
         self.model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
-        # model_json = open('../chatbot_train/models/cornell/wordword-architecture.json', 'r').read()
+        # model_json = open('../chatbot_train/models/cornell/word-architecture.json', 'r').read()
         # self.model = model_from_json(model_json)
-        self.model.load_weights('../chatbot_train/models/cornell/wordword-weights.h5')
+        self.model.load_weights('../chatbot_train/models/cornell/word-weights.h5')
         self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
 
         self.encoder_model = Model(encoder_inputs, encoder_states)
@@ -62,7 +62,7 @@ class CornellWordChatBot(object):
     def reply(self, input_text):
         input_seq = []
         input_wids = []
-        for word in nltk.word_tokenize(input_text):
+        for word in nltk.word_tokenize(input_text.lower()):
             idx = 1  # default [UNK]
             if word in self.input_word2idx:
                 idx = self.input_word2idx[word]
@@ -71,27 +71,31 @@ class CornellWordChatBot(object):
         input_seq = pad_sequences(input_seq, self.max_encoder_seq_length)
         states_value = self.encoder_model.predict(input_seq)
         target_seq = np.zeros((1, 1, self.num_decoder_tokens))
-        target_seq[0, 0, self.target_word2idx['[START]']] = 1
+        target_seq[0, 0, self.target_word2idx['START']] = 1
         target_text = ''
+        target_text_len = 0
         terminated = False
         while not terminated:
             output_tokens, h, c = self.decoder_model.predict([target_seq] + states_value)
 
             sample_token_idx = np.argmax(output_tokens[0, -1, :])
             sample_word = self.target_idx2word[sample_token_idx]
-            target_text += sample_word
+            target_text_len += 1
 
-            if sample_word == '[END]' or len(target_text) >= self.max_decoder_seq_length:
+            if sample_word != 'START' and sample_word != 'END':
+                target_text += ' ' + sample_word
+
+            if sample_word == 'END' or target_text_len >= self.max_decoder_seq_length:
                 terminated = True
 
             target_seq = np.zeros((1, 1, self.num_decoder_tokens))
             target_seq[0, 0, sample_token_idx] = 1
 
             states_value = [h, c]
-        return target_text
+        return target_text.strip()
 
     def test_run(self):
-        print(self.reply('Be nice.'))
+        print(self.reply('do you listen to this crap?'))
         print(self.reply('Drop it!'))
         print(self.reply('Get out!'))
 

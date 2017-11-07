@@ -5,7 +5,9 @@ import numpy as np
 
 BATCH_SIZE = 64
 NUM_EPOCHS = 60
-HIDDEN_UNITS = 64
+HIDDEN_UNITS = 256
+MAX_INPUT_SEQ_LENGTH = 250
+MAX_TARGET_SEQ_LENGTH = 250
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
 input_texts = []
@@ -16,9 +18,15 @@ target_characters = set()
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 for idx,line in enumerate(lines):
     if idx % 2 == 0:
-        input_texts.append(line.lower())
+        input_text = line.lower()
+        if len(input_text) > MAX_INPUT_SEQ_LENGTH:
+            input_text = input_text[0:MAX_INPUT_SEQ_LENGTH]
+        input_texts.append(input_text)
     else:
-        target_text = '\t' + line.lower() + '\n'
+        target_text = line.lower()
+        if len(target_text) > MAX_TARGET_SEQ_LENGTH:
+            target_text = target_text[0:MAX_TARGET_SEQ_LENGTH]
+        target_text = '\t' + target_text + '\n'
         target_texts.append(target_text)
 
 for input_text, target_text in zip(input_texts, target_texts):

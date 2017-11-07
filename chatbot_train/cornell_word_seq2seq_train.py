@@ -10,8 +10,10 @@ from sklearn.cross_validation import train_test_split
 np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
-HIDDEN_UNITS = 64
+NUM_EPOCHS = 2
+HIDDEN_UNITS = 256
+MAX_INPUT_SEQ_LENGTH = 50
+MAX_TARGET_SEQ_LENGTH = 50
 MAX_VOCAB_SIZE = 10000
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
@@ -21,20 +23,24 @@ target_counter = Counter()
 lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 input_texts = []
 target_texts = []
-for idx, line in enumerate(lines[0:1028]):
-    if idx % 2 == 0:
-        input_texts.append(line.lower())
-    else:
-        target_text = '[START] ' + line.lower() + ' [END]'
-        target_texts.append(target_text)
 
-for input_text, target_text in zip(input_texts, target_texts):
-    input_words = [w for w in nltk.word_tokenize(input_text)]
-    target_words = [w for w in nltk.word_tokenize(target_text)]
-    for w in input_words:
-        input_counter[w] += 1
-    for w in target_words:
-        target_counter[w] += 1
+for idx, line in enumerate(lines):
+    if idx % 2 == 0:
+        input_words = [w.lower() for w in nltk.word_tokenize(line)]
+        if len(input_words) > MAX_INPUT_SEQ_LENGTH:
+            input_words = input_words[0:MAX_INPUT_SEQ_LENGTH]
+        input_texts.append(input_words)
+        for w in input_words:
+            input_counter[w] += 1
+    else:
+        target_words = [w.lower() for w in nltk.word_tokenize(line)]
+        if len(target_words) > MAX_TARGET_SEQ_LENGTH:
+            target_words = target_words[0:MAX_TARGET_SEQ_LENGTH]
+        for w in target_words:
+            target_counter[w] += 1
+        target_words.insert(0, 'START')
+        target_words.append('END')
+        target_texts.append(target_words)
 
 input_word2idx = dict()
 target_word2idx = dict()
@@ -43,12 +49,12 @@ for idx, word in enumerate(input_counter.most_common(MAX_VOCAB_SIZE)):
 for idx, word in enumerate(target_counter.most_common(MAX_VOCAB_SIZE)):
     target_word2idx[word[0]] = idx + 1
 
-input_word2idx['[PAD]'] = 0
-input_word2idx['[UNK]'] = 1
-target_word2idx['[UNK]'] = 0
+input_word2idx['PAD'] = 0
+input_word2idx['UNK'] = 1
+target_word2idx['UNK'] = 0
 
-input_idx2word = {(idx, word) for word, idx in input_word2idx.items()}
-target_idx2word = {(idx, word) for word, idx in target_word2idx.items()}
+input_idx2word = dict([(idx, word) for word, idx in input_word2idx.items()])
+target_idx2word = dict([(idx, word) for word, idx in target_word2idx.items()])
 
 num_encoder_tokens = len(input_idx2word)
 num_decoder_tokens = len(target_idx2word)
@@ -63,9 +69,7 @@ encoder_input_data = []
 encoder_max_seq_length = 0
 decoder_max_seq_length = 0
 
-for input_text, target_text in zip(input_texts, target_texts):
-    input_words = [w for w in nltk.word_tokenize(input_text)]
-    target_words = [w for w in nltk.word_tokenize(target_text)]
+for input_words, target_words in zip(input_texts, target_texts):
     encoder_input_wids = []
     for w in input_words:
         w2idx = 1  # default [UNK]
@@ -88,23 +92,23 @@ np.save('models/cornell/word-context.npy', context)
 
 
 def generate_batch(input_data, output_text_data):
-    num_batches = len(input_data) // BATCH_SIZE
-    for batchIdx in range(0, num_batches - 1):
-        start = batchIdx * BATCH_SIZE
-        end = (batchIdx + 1) * BATCH_SIZE
-        encoder_input_data_batch = pad_sequences(input_data[start:end], encoder_max_seq_length)
-        decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
-        decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
-        for lineIdx, target_text in enumerate(output_text_data[start:end]):
-            target_words = [w for w in nltk.word_tokenize(target_text)]
-            for idx, w in enumerate(target_words):
-                w2idx = 0  # default [UNK]
-                if w in target_word2idx:
-                    w2idx = target_word2idx[w]
-                decoder_input_data_batch[lineIdx, idx, w2idx] = 1
-                if idx > 0:
-                    decoder_target_data_batch[lineIdx, idx - 1, w2idx] = 1
-        yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
+    while True:
+        num_batches = len(input_data) // BATCH_SIZE
+        for batchIdx in range(0, num_batches - 1):
+            start = batchIdx * BATCH_SIZE
+            end = (batchIdx + 1) * BATCH_SIZE
+            encoder_input_data_batch = pad_sequences(input_data[start:end], encoder_max_seq_length)
+            decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
+            decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, num_decoder_tokens))
+            for lineIdx, target_words in enumerate(output_text_data[start:end]):
+                for idx, w in enumerate(target_words):
+                    w2idx = 0  # default [UNK]
+                    if w in target_word2idx:
+                        w2idx = target_word2idx[w]
+                    decoder_input_data_batch[lineIdx, idx, w2idx] = 1
+                    if idx > 0:
+                        decoder_target_data_batch[lineIdx, idx - 1, w2idx] = 1
+            yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
 
 
 encoder_inputs = Input(shape=(None,), name='encoder_inputs')
