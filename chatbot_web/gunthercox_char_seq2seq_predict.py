@@ -2,8 +2,9 @@ from keras.models import Model, model_from_json
 from keras.layers import Input, LSTM, Dense
 import numpy as np
 
-HIDDEN_UNITS = 256
-MAX_INPUT_SEQ_LENGTH = 250
+HIDDEN_UNITS = 1024
+MAX_INPUT_SEQ_LENGTH = 40
+
 
 class GunthercoxCharChatBot(object):
     model = None
