@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
   <ul class=entries>
-    <li><a href="{{ url_for('wordvec_cnn') }}">1D ConvNet with Word Embedding</a></li>
-    <li><a href="{{ url_for('lstm_sigmoid') }}">LSTM with binary cross-entropy</a></li>
-    <li><a href="{{ url_for('lstm_softmax') }}">LSTM with categorical cross-entropy</a></li>
-    <li><a href="{{ url_for('bidirectional_lstm_softmax') }}">Bidirectional LSTM with categorical cross-entropy</a></li>
+    <li><a href="{{ url_for('gunthercox_char_reply') }}">Gunthercox Chat Bot</a></li>
+    <li><a href="{{ url_for('cornell_char_reply') }}">Cornell Chat Bot</a></li>
   </ul>
 {% endblock %}

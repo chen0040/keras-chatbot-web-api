@@ -5,6 +5,15 @@ import numpy as np
 import nltk
 
 HIDDEN_UNITS = 256
+whitelist = 'abcdefghijklmnopqrstuvwxyz1234567890'
+
+
+def in_white_list(_word):
+    for char in _word:
+        if char in whitelist:
+            return True
+
+    return False
 
 
 class GunthercoxWordChatBot(object):
@@ -63,6 +72,8 @@ class GunthercoxWordChatBot(object):
         input_seq = []
         input_wids = []
         for word in nltk.word_tokenize(input_text.lower()):
+            if not in_white_list(word):
+                continue
             idx = 1  # default [UNK]
             if word in self.input_word2idx:
                 idx = self.input_word2idx[word]

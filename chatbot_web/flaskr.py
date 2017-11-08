@@ -1,6 +1,8 @@
 from flask import Flask, request, send_from_directory, redirect, render_template, flash, url_for, jsonify, \
     make_response, abort
 from chatbot_web.cornell_char_seq2seq_predict import CornellCharChatBot
+from chatbot_web.gunthercox_word_seq2seq_predict import GunthercoxWordChatBot
+from chatbot_web.gunthercox_char_seq2seq_predict import GunthercoxCharChatBot
 
 app = Flask(__name__)
 app.config.from_object(__name__)  # load config from this file , flaskr.py
@@ -9,10 +11,18 @@ app.config.from_object(__name__)  # load config from this file , flaskr.py
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-cornell_char_chat_bot = CornellCharChatBot()
-cornell_char_chat_bot.test_run()
+# cornell_char_chat_bot = CornellCharChatBot()
+# cornell_char_chat_bot.test_run()
 
-conversations = []
+gunthercox_char_chat_bot = GunthercoxCharChatBot()
+gunthercox_char_chat_bot.test_run()
+
+gunthercox_word_chat_bot = GunthercoxWordChatBot()
+gunthercox_word_chat_bot.test_run()
+
+cornell_char_chat_bot_conversations = []
+gunthercox_char_chat_bot_conversations = []
+gunthercox_word_chat_bot_conversations = []
 
 
 @app.route('/')
@@ -36,13 +46,45 @@ def cornell_char_reply():
             redirect(request.url)
         else:
             sent = request.form['sentence']
-            conversations.append('BOT: ' + sent)
-            reply = cornell_char_chat_bot.reply(sent)
-            conversations.append('YOU: ' + reply)
-    return render_template('cornell_char_reply.html', conversations=conversations)
+            cornell_char_chat_bot_conversations.append('BOT: ' + sent)
+            reply = gunthercox_char_chat_bot.reply(sent)
+            cornell_char_chat_bot_conversations.append('YOU: ' + reply)
+    return render_template('cornell_char_reply.html', conversations=cornell_char_chat_bot_conversations)
+
+@app.route('/gunthercox_char_reply', methods=['POST', 'GET'])
+def gunthercox_char_reply():
+    if request.method == 'POST':
+        if 'sentence' not in request.form:
+            flash('No sentence post')
+            redirect(request.url)
+        elif request.form['sentence'] == '':
+            flash('No sentence')
+            redirect(request.url)
+        else:
+            sent = request.form['sentence']
+            gunthercox_char_chat_bot_conversations.append('BOT: ' + sent)
+            reply = gunthercox_char_chat_bot.reply(sent)
+            gunthercox_char_chat_bot_conversations.append('YOU: ' + reply)
+    return render_template('cornell_char_reply.html', conversations=gunthercox_char_chat_bot_conversations)
 
 
-@app.route('/chatbot_reply', method=['POST', 'GET'])
+@app.route('/gunthercox_word_reply', methods=['POST', 'GET'])
+def gunthercox_word_reply():
+    if request.method == 'POST':
+        if 'sentence' not in request.form:
+            flash('No sentence post')
+            redirect(request.url)
+        elif request.form['sentence'] == '':
+            flash('No sentence')
+            redirect(request.url)
+        else:
+            sent = request.form['sentence']
+            gunthercox_word_chat_bot_conversations.append('BOT: ' + sent)
+            reply = gunthercox_word_chat_bot.reply(sent)
+            gunthercox_word_chat_bot_conversations.append('YOU: ' + reply)
+    return render_template('cornell_word_reply.html', conversations=gunthercox_word_chat_bot_conversations)
+
+@app.route('/chatbot_reply', methods=['POST', 'GET'])
 def chatbot_reply():
     if request.method == 'POST':
         if not request.json or 'sentence' not in request.json or 'level' not in request.json or 'dialogs' not in request.json:
@@ -57,9 +99,13 @@ def chatbot_reply():
 
     target_text = sentence
     if level == 'char' and dialogs == 'cornell':
-        target_text = cornell_char_chat_bot.reply(sentence)
+        target_text = gunthercox_char_chat_bot.reply(sentence)
     elif level == 'word' and dialogs == 'cornell':
-        target_text = cornell_char_chat_bot.reply(sentence)
+        target_text = gunthercox_char_chat_bot.reply(sentence)
+    elif level == 'char' and dialogs == 'gunthercox':
+        target_text = gunthercox_char_chat_bot.reply(sentence)
+    elif level == 'word' and dialogs == 'gunthercox':
+        target_text = gunthercox_char_chat_bot.reply(sentence)
     return jsonify({
         'sentence': sentence,
         'reply': target_text,

@@ -5,10 +5,10 @@ import numpy as np
 import os
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 30
-HIDDEN_UNITS = 1024
-MAX_INPUT_SEQ_LENGTH = 40
-MAX_TARGET_SEQ_LENGTH = 40
+NUM_EPOCHS = 100
+HIDDEN_UNITS = 256
+MAX_INPUT_SEQ_LENGTH = 60
+MAX_TARGET_SEQ_LENGTH = 60
 DATA_DIR_PATH = 'data/gunthercox'
 
 input_texts = []
@@ -16,6 +16,7 @@ target_texts = []
 input_characters = set()
 target_characters = set()
 
+whitelist = 'abcdefghijklmnopqrstuvwxyz 1234567890'
 for file in os.listdir(DATA_DIR_PATH):
     filepath = os.path.join(DATA_DIR_PATH, file)
     if os.path.isfile(filepath):
@@ -23,7 +24,11 @@ for file in os.listdir(DATA_DIR_PATH):
         lines = open(filepath, 'rt', encoding='utf8').read().split('\n')
         prev_line = ''
         for line in lines:
-            next_line = line.lower()
+            next_line = ''
+            for char in line.lower():
+                if char in whitelist:
+                    next_line += char
+
             if len(next_line) > MAX_TARGET_SEQ_LENGTH:
                 next_line = next_line[0:MAX_TARGET_SEQ_LENGTH]
 
@@ -58,6 +63,9 @@ np.save('models/gunthercox/char-input-char2idx.npy', input_char2idx)
 np.save('models/gunthercox/char-target-char2idx.npy', target_char2idx)
 np.save('models/gunthercox/char-input-idx2char.npy', input_idx2char)
 np.save('models/gunthercox/char-target-idx2char.npy', target_idx2char)
+
+print(input_char2idx)
+print(target_char2idx)
 
 context = dict()
 context['max_encoder_seq_length'] = max_encoder_seq_length

@@ -2,8 +2,9 @@ from keras.models import Model, model_from_json
 from keras.layers import Input, LSTM, Dense
 import numpy as np
 
-HIDDEN_UNITS = 1024
-MAX_INPUT_SEQ_LENGTH = 40
+HIDDEN_UNITS = 256
+MAX_INPUT_SEQ_LENGTH = 60
+whitelist = 'abcdefghijklmnopqrstuvwxyz 1234567890'
 
 
 class GunthercoxCharChatBot(object):
@@ -58,6 +59,11 @@ class GunthercoxCharChatBot(object):
         self.decoder_model = Model([decoder_inputs] + decoder_state_inputs, [decoder_outputs] + decoder_states)
 
     def reply(self, input_text):
+        temp = input_text.lower()
+        input_text = ''
+        for w in temp:
+            if w in whitelist:
+                input_text += w
         if len(input_text) > MAX_INPUT_SEQ_LENGTH:
             input_text = input_text[0:MAX_INPUT_SEQ_LENGTH]
         input_seq = np.zeros((1, self.max_encoder_seq_length, self.num_encoder_tokens))
@@ -84,7 +90,7 @@ class GunthercoxCharChatBot(object):
             target_seq = np.zeros((1, 1, self.num_decoder_tokens))
             target_seq[0, 0, sample_token_idx] = 1
             states_value = [h, c]
-        return target_text
+        return target_text.strip()
 
     def test_run(self):
         print(self.reply('How are you?'))

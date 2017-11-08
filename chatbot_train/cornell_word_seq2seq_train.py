@@ -10,11 +10,11 @@ from sklearn.cross_validation import train_test_split
 np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 30
+NUM_EPOCHS = 100
 HIDDEN_UNITS = 256
-MAX_INPUT_SEQ_LENGTH = 100
-MAX_TARGET_SEQ_LENGTH = 100
-MAX_VOCAB_SIZE = 10000
+MAX_INPUT_SEQ_LENGTH = 40
+MAX_TARGET_SEQ_LENGTH = 40
+MAX_VOCAB_SIZE = 800
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
 input_counter = Counter()
@@ -92,8 +92,8 @@ np.save('models/cornell/word-context.npy', context)
 
 
 def generate_batch(input_data, output_text_data):
+    num_batches = len(input_data) // BATCH_SIZE
     while True:
-        num_batches = len(input_data) // BATCH_SIZE
         for batchIdx in range(0, num_batches - 1):
             start = batchIdx * BATCH_SIZE
             end = (batchIdx + 1) * BATCH_SIZE

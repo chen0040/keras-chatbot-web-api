@@ -3,7 +3,7 @@ from keras.layers import Input, LSTM, Dense
 import numpy as np
 
 HIDDEN_UNITS = 256
-MAX_INPUT_SEQ_LENGTH = 250
+MAX_INPUT_SEQ_LENGTH = 80
 
 class CornellCharChatBot(object):
     model = None

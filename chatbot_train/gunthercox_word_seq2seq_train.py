@@ -11,11 +11,11 @@ import os
 np.random.seed(42)
 
 BATCH_SIZE = 64
-NUM_EPOCHS = 30
+NUM_EPOCHS = 100
 HIDDEN_UNITS = 256
-MAX_INPUT_SEQ_LENGTH = 100
-MAX_TARGET_SEQ_LENGTH = 100
-MAX_VOCAB_SIZE = 10000
+MAX_INPUT_SEQ_LENGTH = 30
+MAX_TARGET_SEQ_LENGTH = 30
+MAX_VOCAB_SIZE = 600
 DATA_DIR_PATH = 'data/gunthercox'
 
 input_counter = Counter()
@@ -23,6 +23,17 @@ target_counter = Counter()
 
 input_texts = []
 target_texts = []
+
+whitelist = 'abcdefghijklmnopqrstuvwxyz1234567890'
+
+
+def in_white_list(_word):
+    for char in _word:
+        if char in whitelist:
+            return True
+
+    return False
+
 
 for file in os.listdir(DATA_DIR_PATH):
     filepath = os.path.join(DATA_DIR_PATH, file)
@@ -39,6 +50,7 @@ for file in os.listdir(DATA_DIR_PATH):
                 line = line.replace('- - ', '')
                 line = line.replace('  - ', '')
                 next_words = [w.lower() for w in nltk.word_tokenize(line)]
+                next_words = [w for w in next_words if in_white_list(w)]
                 if len(next_words) > MAX_TARGET_SEQ_LENGTH:
                     next_words = next_words[0:MAX_TARGET_SEQ_LENGTH]
 
@@ -111,8 +123,8 @@ np.save('models/gunthercox/word-context.npy', context)
 
 
 def generate_batch(input_data, output_text_data):
+    num_batches = len(input_data) // BATCH_SIZE
     while True:
-        num_batches = len(input_data) // BATCH_SIZE
         for batchIdx in range(0, num_batches - 1):
             start = batchIdx * BATCH_SIZE
             end = (batchIdx + 1) * BATCH_SIZE
