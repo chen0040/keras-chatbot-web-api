@@ -2,11 +2,11 @@
 {% block body %}
     <p>Write your message here: (Cornell Dialogs)</p>
     <form method=post>
-        <textarea rows="20">
-            <% for line in conversations %>
-                {{line}}
-            <% endfor %>
-        </textarea>
+        <ul>
+            {% for line in conversations %}
+            <li>{{line}}</li>
+            {% endfor %}
+        </ul>
       <p>Message: <input type=text name=sentence></p>
          <input type=submit value=Send>
     </form>

@@ -46,10 +46,11 @@ def cornell_char_reply():
             redirect(request.url)
         else:
             sent = request.form['sentence']
-            cornell_char_chat_bot_conversations.append('BOT: ' + sent)
+            cornell_char_chat_bot_conversations.append('YOU: ' + sent)
             reply = gunthercox_char_chat_bot.reply(sent)
-            cornell_char_chat_bot_conversations.append('YOU: ' + reply)
+            cornell_char_chat_bot_conversations.append('BOT: ' + reply)
     return render_template('cornell_char_reply.html', conversations=cornell_char_chat_bot_conversations)
+
 
 @app.route('/gunthercox_char_reply', methods=['POST', 'GET'])
 def gunthercox_char_reply():
@@ -62,9 +63,9 @@ def gunthercox_char_reply():
             redirect(request.url)
         else:
             sent = request.form['sentence']
-            gunthercox_char_chat_bot_conversations.append('BOT: ' + sent)
+            gunthercox_char_chat_bot_conversations.append('YOU: ' + sent)
             reply = gunthercox_char_chat_bot.reply(sent)
-            gunthercox_char_chat_bot_conversations.append('YOU: ' + reply)
+            gunthercox_char_chat_bot_conversations.append('BOT: ' + reply)
     return render_template('cornell_char_reply.html', conversations=gunthercox_char_chat_bot_conversations)
 
 
@@ -79,10 +80,11 @@ def gunthercox_word_reply():
             redirect(request.url)
         else:
             sent = request.form['sentence']
-            gunthercox_word_chat_bot_conversations.append('BOT: ' + sent)
+            gunthercox_word_chat_bot_conversations.append('YOU: ' + sent)
             reply = gunthercox_word_chat_bot.reply(sent)
-            gunthercox_word_chat_bot_conversations.append('YOU: ' + reply)
+            gunthercox_word_chat_bot_conversations.append('BOT: ' + reply)
     return render_template('cornell_word_reply.html', conversations=gunthercox_word_chat_bot_conversations)
+
 
 @app.route('/chatbot_reply', methods=['POST', 'GET'])
 def chatbot_reply():
@@ -105,7 +107,7 @@ def chatbot_reply():
     elif level == 'char' and dialogs == 'gunthercox':
         target_text = gunthercox_char_chat_bot.reply(sentence)
     elif level == 'word' and dialogs == 'gunthercox':
-        target_text = gunthercox_char_chat_bot.reply(sentence)
+        target_text = gunthercox_word_chat_bot.reply(sentence)
     return jsonify({
         'sentence': sentence,
         'reply': target_text,
