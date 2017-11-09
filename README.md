@@ -18,7 +18,7 @@ The chat bot models are chained using cornell-dialogs and gunthercox-corpus data
 chat bot_train/models directory. During runtime, the flask app will load these trained models to perform the 
 chat-reply
 
-Goto chat bot_web directory and run the following command:
+Goto chatbot_web directory and run the following command:
 
 ```bash
 python flaskr.py
@@ -30,7 +30,7 @@ trained seq2seq models:
 * Character-level seq2seq models
 * Word-level seq2seq models
 
-To translate an english sentence to other languages using web api, after the flask server is started, run the following curl POST query
+To make the bot reply using web api, after the flask server is started, run the following curl POST query
 in your terminal:
 
 ```bash
@@ -41,7 +41,7 @@ The level_type can be "char" or "word", the dialogs can be "gunthercox" or "corn
 
 (Note that same results can be obtained by running a curl GET query to http://localhost:5000/chatbot_reply?sentence=your_sentence_here&level=level_type&dialogs=chatbox_dataset)
 
-For example, you can translate the sentence "How are you?" by running the following command:
+For example, you can ask the bot to reply the sentence "How are you?" by running the following command:
 
 ```bash
 curl -H 'Content-Type: application/json' -X POST -d '{"level":"word", "sentence":"How are you?", "dialogs":"gunthercox"}' http://localhost:5000/chatbot_reply
@@ -65,4 +65,11 @@ curl -H 'Content-Type: application/json' -X POST -d '{"level":"char", "sentence"
 curl -H 'Content-Type: application/json' -X POST -d '{"level":"word", "sentence":"How are you?", "dialogs":"cornell"}' http://localhost:5000/chatbot_reply
 curl -H 'Content-Type: application/json' -X POST -d '{"level":"char", "sentence":"How are you?", "dialogs":"cornell"}' http://localhost:5000/chatbot_reply
 ```
+
+# TODO
+
+* Parameter tuning: as the seq2seq usually takes many hours to train on large corpus and long sentences, i don't have sufficient time at the moment to do a good job on the 
+parameter tuning and training for a longer period of time (current parameters were tuned such that the bots can be trained in a few hours)
+* Better text preprocessing: to improve the bot behavior, one way is to perform more text preprocessing before the training (e.g. stop word filtering, stemming)
+
 

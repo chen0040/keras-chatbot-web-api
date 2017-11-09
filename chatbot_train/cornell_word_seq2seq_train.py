@@ -24,21 +24,24 @@ lines = open(DATA_PATH, 'rt', encoding='utf8').read().split('\n')
 input_texts = []
 target_texts = []
 
-prev_words = ['SILENT']
+prev_words = []
 for line in lines:
-    input_texts.append(prev_words)
-    for w in prev_words:
-        input_counter[w] += 1
 
     next_words = [w.lower() for w in nltk.word_tokenize(line)]
     if len(next_words) > MAX_TARGET_SEQ_LENGTH:
         next_words = next_words[0:MAX_TARGET_SEQ_LENGTH]
-    target_words = next_words[:]
-    target_words.insert(0, 'START')
-    target_words.append('END')
-    for w in target_words:
-        target_counter[w] += 1
-    target_texts.append(target_words)
+
+    if len(prev_words) > 0:
+        input_texts.append(prev_words)
+        for w in prev_words:
+            input_counter[w] += 1
+
+        target_words = next_words[:]
+        target_words.insert(0, 'START')
+        target_words.append('END')
+        for w in target_words:
+            target_counter[w] += 1
+        target_texts.append(target_words)
 
     prev_words = next_words
 
