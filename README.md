@@ -14,8 +14,8 @@ Run the following command to install the keras, flask and other dependency modul
 sudo pip install -r requirements.txt
 ```
 
-The chat bot models are chained using cornell-dialogs and [gunthercox-corpus](https://github.com/gunthercox/chatterbot-corpus) data set and are available in the 
-chat bot_train/models directory. During runtime, the flask app will load these trained models to perform the 
+The chat bot models are train using cornell-dialogs and [gunthercox-corpus](https://github.com/gunthercox/chatterbot-corpus) data set and are available in the 
+"chatbot_train/models" directory. During runtime, the flask app will load these trained models to perform the 
 chat-reply
 
 ## Training (Optional)
