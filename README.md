@@ -14,9 +14,31 @@ Run the following command to install the keras, flask and other dependency modul
 sudo pip install -r requirements.txt
 ```
 
-The chat bot models are chained using cornell-dialogs and gunthercox-corpus data set and are available in the 
+The chat bot models are chained using cornell-dialogs and [gunthercox-corpus](https://github.com/gunthercox/chatterbot-corpus) data set and are available in the 
 chat bot_train/models directory. During runtime, the flask app will load these trained models to perform the 
 chat-reply
+
+## Training (Optional)
+
+As the trained models are already included in the "chatbot_train/models" folder in the project, the bot training is
+not required. However, if you like to tune the parameters of the seq2seq and retrain the models, you can use the 
+following command to run the training:
+
+```bash
+cd chatbot_train
+python cornell_char_seq2seq_train.py
+```
+
+The above commands will train seq2seq model using cornell dialogs on the character-level and store the trained model
+in "chatbot_train/models/cornell/char-**"
+
+If you like to train other models, you can use the same command above on another train python scripts:
+
+* cornell_word_seq2seq_train.py: train on cornell dialogs on word-level
+* gunthercox_char_seq2seq_train.py: train on gunthercox corpus on character-level
+* gunthercox_word_seq2seq_train.py: train on gunthercox corpus on word-level
+
+## Running Web Api Server
 
 Goto chatbot_web directory and run the following command:
 
@@ -29,6 +51,8 @@ trained seq2seq models:
 
 * Character-level seq2seq models
 * Word-level seq2seq models
+
+## Invoke Web Api
 
 To make the bot reply using web api, after the flask server is started, run the following curl POST query
 in your terminal:
