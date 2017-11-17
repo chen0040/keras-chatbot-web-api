@@ -36,7 +36,8 @@ If you like to train other models, you can use the same command above on another
 
 * cornell_word_seq2seq_train.py: train on cornell dialogs on word-level
 * gunthercox_char_seq2seq_train.py: train on gunthercox corpus on character-level
-* gunthercox_word_seq2seq_train.py: train on gunthercox corpus on word-level
+* gunthercox_word_seq2seq_train.py: train on gunthercox corpus on word-level (one hot encoding)
+* gunthercox_word_seq2seq_glove_train.py train on gunthercox corpus on word-level (glove word2vec encoding)
 
 ## Running Web Api Server
 
