@@ -16,6 +16,7 @@ target_texts = []
 input_characters = set()
 target_characters = set()
 
+
 whitelist = 'abcdefghijklmnopqrstuvwxyz 1234567890'
 for file in os.listdir(DATA_DIR_PATH):
     filepath = os.path.join(DATA_DIR_PATH, file)

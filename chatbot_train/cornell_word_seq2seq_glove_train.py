@@ -20,9 +20,10 @@ HIDDEN_UNITS = 256
 MAX_INPUT_SEQ_LENGTH = 40
 MAX_TARGET_SEQ_LENGTH = 40
 MAX_VOCAB_SIZE = 10000
+DATA_SET_NAME = 'cornell'
 DATA_PATH = 'data/cornell-dialogs/movie_lines_cleaned_10k.txt'
 
-GLOVE_MODEL = "very_large_data/glove.6B.100d.txt"
+GLOVE_MODEL = "very_large_data/glove.6B." + str(GLOVE_EMBEDDING_SIZE) + "d.txt"
 WHITELIST = 'abcdefghijklmnopqrstuvwxyz1234567890?.,'
 
 
@@ -98,8 +99,8 @@ for line in lines:
         input_texts.append(prev_words)
 
         target_words = next_words[:]
-        target_words.insert(0, 'START')
-        target_words.append('END')
+        target_words.insert(0, 'start')
+        target_words.append('end')
         for w in target_words:
             target_counter[w] += 1
         target_texts.append(target_words)
@@ -122,8 +123,8 @@ target_idx2word = dict([(idx, word) for word, idx in target_word2idx.items()])
 
 num_decoder_tokens = len(target_idx2word)+1
 
-np.save('models/cornell/word-glove-target-word2idx.npy', target_word2idx)
-np.save('models/cornell/word-glove-target-idx2word.npy', target_idx2word)
+np.save('models/' + DATA_SET_NAME + '/word-glove-target-word2idx.npy', target_word2idx)
+np.save('models/' + DATA_SET_NAME + '/word-glove-target-idx2word.npy', target_idx2word)
 
 input_texts_word2em = []
 
@@ -148,7 +149,7 @@ context['encoder_max_seq_length'] = encoder_max_seq_length
 context['decoder_max_seq_length'] = decoder_max_seq_length
 
 print(context)
-np.save('models/cornell/word-glove-context.npy', context)
+np.save('models/' + DATA_SET_NAME + '/word-glove-context.npy', context)
 
 
 def generate_batch(input_word2em_data, output_text_data):
@@ -204,5 +205,5 @@ model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                     verbose=1, validation_data=test_gen, validation_steps=test_num_batches)
 
 json = model.to_json()
-open('models/cornell/word-glove-architecture.json', 'w').write(json)
-model.save_weights('models/cornell/word-glove-weights.h5')
+open('models/' + DATA_SET_NAME + '/word-glove-architecture.json', 'w').write(json)
+model.save_weights('models/' + DATA_SET_NAME + '/word-glove-weights.h5')

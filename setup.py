@@ -7,7 +7,10 @@ setup(
     install_requires=[
         'flask',
         'keras',
-        'sklearn'
+        'sklearn',
+        'numpy',
+        'nltk',
+        'h5py'
     ],
     setup_requires=[
         'pytest-runner',

@@ -12,8 +12,7 @@ HIDDEN_UNITS = 256
 WHITELIST = 'abcdefghijklmnopqrstuvwxyz1234567890?.,'
 GLOVE_EMBEDDING_SIZE = 100
 GLOVE_MODEL = "../chatbot_train/very_large_data/glove.6B." + str(GLOVE_EMBEDDING_SIZE) + "d.txt"
-DATA_SET_NAME = 'gunthercox'
-
+DATA_SET_NAME = 'cornell'
 
 def in_white_list(_word):
     for char in _word:
@@ -84,10 +83,8 @@ class GunthercoxWordGloveChatBot(object):
         print(len(self.word2em))
         print(self.word2em['start'])
 
-        self.target_word2idx = np.load(
-            '../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-word2idx.npy').item()
-        self.target_idx2word = np.load(
-            '../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-idx2word.npy').item()
+        self.target_word2idx = np.load('../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-word2idx.npy').item()
+        self.target_idx2word = np.load('../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-idx2word.npy').item()
         context = np.load('../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-context.npy').item()
         self.max_encoder_seq_length = context['encoder_max_seq_length']
         self.max_decoder_seq_length = context['decoder_max_seq_length']

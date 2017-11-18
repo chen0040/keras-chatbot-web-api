@@ -34,7 +34,8 @@ in "chatbot_train/models/cornell/char-**"
 
 If you like to train other models, you can use the same command above on another train python scripts:
 
-* cornell_word_seq2seq_train.py: train on cornell dialogs on word-level
+* cornell_word_seq2seq_train.py: train on cornell dialogs on word-level (one hot encoding)
+* cornell_word_seq2seq_glove_train.py: train on cornell dialogs on word-level (GloVe word2vec encoding)
 * gunthercox_char_seq2seq_train.py: train on gunthercox corpus on character-level
 * gunthercox_word_seq2seq_train.py: train on gunthercox corpus on word-level (one hot encoding)
 * gunthercox_word_seq2seq_glove_train.py train on gunthercox corpus on word-level (GloVe word2vec encoding)
