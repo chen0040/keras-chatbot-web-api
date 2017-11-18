@@ -155,7 +155,7 @@ np.save('models/' + DATA_SET_NAME + '/word-glove-context.npy', context)
 def generate_batch(input_word2em_data, output_text_data):
     num_batches = len(input_word2em_data) // BATCH_SIZE
     while True:
-        for batchIdx in range(0, num_batches - 1):
+        for batchIdx in range(0, num_batches):
             start = batchIdx * BATCH_SIZE
             end = (batchIdx + 1) * BATCH_SIZE
             encoder_input_data_batch = pad_sequences(input_word2em_data[start:end], encoder_max_seq_length)
