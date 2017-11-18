@@ -125,7 +125,8 @@ target_word2idx = dict()
 for idx, word in enumerate(target_counter.most_common(MAX_VOCAB_SIZE)):
     target_word2idx[word[0]] = idx + 1
 
-target_word2idx['unknown'] = 0
+if 'unknown' not in target_word2idx:
+    target_word2idx['unknown'] = 0
 
 target_idx2word = dict([(idx, word) for word, idx in target_word2idx.items()])
 
@@ -171,7 +172,7 @@ def generate_batch(input_word2em_data, output_text_data):
             decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, decoder_max_seq_length, GLOVE_EMBEDDING_SIZE))
             for lineIdx, target_words in enumerate(output_text_data[start:end]):
                 for idx, w in enumerate(target_words):
-                    w2idx = 0  # default unknown
+                    w2idx = target_word2idx['unknown']  # default unknown
                     if w in target_word2idx:
                         w2idx = target_word2idx[w]
                     if w in word2em:
