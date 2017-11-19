@@ -2,6 +2,7 @@ from flask import Flask, request, send_from_directory, redirect, render_template
     make_response, abort
 from chatbot_web.cornell_char_seq2seq_predict import CornellCharChatBot
 from chatbot_web.cornell_word_seq2seq_predict import CornellWordChatBot
+from chatbot_web.cornell_word_seq2seq_glove_predict import CornellWordGloveChatBot
 from chatbot_web.gunthercox_word_seq2seq_predict import GunthercoxWordChatBot
 from chatbot_web.gunthercox_word_seq2seq_glove_predict import GunthercoxWordGloveChatBot
 from chatbot_web.gunthercox_char_seq2seq_predict import GunthercoxCharChatBot
@@ -28,11 +29,16 @@ gunthercox_word_chat_bot.test_run()
 gunthercox_word_glove_chat_bot = GunthercoxWordGloveChatBot()
 gunthercox_word_glove_chat_bot.test_run()
 
+cornell_word_glove_chat_bot = CornellWordGloveChatBot()
+cornell_word_glove_chat_bot.test_run()
+
 cornell_char_chat_bot_conversations = []
 cornell_word_chat_bot_conversations = []
+cornell_word_glove_chat_bot_conversations = []
 gunthercox_char_chat_bot_conversations = []
 gunthercox_word_chat_bot_conversations = []
 gunthercox_word_glove_chat_bot_conversations = []
+
 
 @app.route('/')
 def home():
@@ -124,9 +130,26 @@ def gunthercox_word_glove_reply():
         else:
             sent = request.form['sentence']
             gunthercox_word_glove_chat_bot_conversations.append('YOU: ' + sent)
-            reply = gunthercox_word_chat_glove_bot.reply(sent)
+            reply = gunthercox_word_glove_chat_bot.reply(sent)
             gunthercox_word_glove_chat_bot_conversations.append('BOT: ' + reply)
     return render_template('cornell_word_reply.html', conversations=gunthercox_word_chat_bot_conversations)
+
+
+@app.route('/cornell_word_glove_reply', methods=['POST', 'GET'])
+def cornell_word_glove_reply():
+    if request.method == 'POST':
+        if 'sentence' not in request.form:
+            flash('No sentence post')
+            redirect(request.url)
+        elif request.form['sentence'] == '':
+            flash('No sentence')
+            redirect(request.url)
+        else:
+            sent = request.form['sentence']
+            cornell_word_glove_chat_bot_conversations.append('YOU: ' + sent)
+            reply = cornell_word_glove_chat_bot.reply(sent)
+            cornell_word_glove_chat_bot_conversations.append('BOT: ' + reply)
+    return render_template('cornell_word_reply.html', conversations=cornell_word_chat_bot_conversations)
 
 
 @app.route('/chatbot_reply', methods=['POST', 'GET'])
@@ -146,11 +169,15 @@ def chatbot_reply():
     if level == 'char' and dialogs == 'cornell':
         target_text = cornell_char_chat_bot.reply(sentence)
     elif level == 'word' and dialogs == 'cornell':
-        target_text = cornell_char_chat_bot.reply(sentence)
+        target_text = cornell_word_chat_bot.reply(sentence)
+    elif level == 'word-glove' and dialogs == 'cornell':
+        target_text = cornell_word_glove_chat_bot.reply(sentence)
     elif level == 'char' and dialogs == 'gunthercox':
         target_text = gunthercox_char_chat_bot.reply(sentence)
     elif level == 'word' and dialogs == 'gunthercox':
         target_text = gunthercox_word_chat_bot.reply(sentence)
+    elif level == 'word-glove' and dialogs == 'gunthercox':
+        target_text = gunthercox_word_glove_chat_bot.reply(sentence)
     return jsonify({
         'sentence': sentence,
         'reply': target_text,

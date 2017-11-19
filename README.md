@@ -6,6 +6,10 @@ The chat bot is built based on seq2seq models, and can infer based on either cha
 
 The seq2seq model is implemented using LSTM encoder-decoder on Keras. 
 
+# Notes
+
+So far the GloVe word encoding version of the chatbot seems to give the best performance.
+
 # Usage
 
 Run the following command to install the keras, flask and other dependency modules:
@@ -52,7 +56,8 @@ Now navigate your browser to http://localhost:5000 and you can try out various p
 trained seq2seq models:
 
 * Character-level seq2seq models
-* Word-level seq2seq models
+* Word-level seq2seq models (One Hot Encoding)
+* Word-level seq2seq models (GloVe Encoding)
 
 ## Invoke Web Api
 
@@ -90,7 +95,11 @@ Here are some examples for eng chat-reply using some other configuration options
 curl -H 'Content-Type: application/json' -X POST -d '{"level":"char", "sentence":"How are you?", "dialogs":"gunthercox"}' http://localhost:5000/chatbot_reply
 curl -H 'Content-Type: application/json' -X POST -d '{"level":"word", "sentence":"How are you?", "dialogs":"cornell"}' http://localhost:5000/chatbot_reply
 curl -H 'Content-Type: application/json' -X POST -d '{"level":"char", "sentence":"How are you?", "dialogs":"cornell"}' http://localhost:5000/chatbot_reply
+curl -H 'Content-Type: application/json' -X POST -d '{"level":"word-glove", "sentence":"How are you?", "dialogs":"cornell"}' http://localhost:5000/chatbot_reply
+curl -H 'Content-Type: application/json' -X POST -d '{"level":"word-glove", "sentence":"How are you?", "dialogs":"gunthercox"}' http://localhost:5000/chatbot_reply
 ```
+
+
 
 # TODO
 

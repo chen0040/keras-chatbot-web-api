@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+    <p>Write your message here: (Gunthercox Corpus Word-Level GloVe Encoding)</p>
+    <form method=post>
+        <ul>
+            {% for line in conversations %}
+            <li>{{line}}</li>
+            {% endfor %}
+        </ul>
+      <p>Message: <input type=text name=sentence></p>
+         <input type=submit value=Send>
+    </form>
+{% endblock %}

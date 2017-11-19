@@ -1,5 +1,5 @@
-from keras.models import Model, model_from_json
-from keras.layers import Input, LSTM, Dense, Embedding
+from keras.models import Model
+from keras.layers import Input, LSTM, Dense
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import nltk
@@ -13,6 +13,7 @@ WHITELIST = 'abcdefghijklmnopqrstuvwxyz1234567890?.,'
 GLOVE_EMBEDDING_SIZE = 100
 GLOVE_MODEL = "../chatbot_train/very_large_data/glove.6B." + str(GLOVE_EMBEDDING_SIZE) + "d.txt"
 DATA_SET_NAME = 'cornell'
+
 
 def in_white_list(_word):
     for char in _word:
@@ -67,7 +68,7 @@ def load_glove():
     return word2em
 
 
-class GunthercoxWordGloveChatBot(object):
+class CornellWordGloveChatBot(object):
     model = None
     encoder_model = None
     decoder_model = None
@@ -83,8 +84,10 @@ class GunthercoxWordGloveChatBot(object):
         print(len(self.word2em))
         print(self.word2em['start'])
 
-        self.target_word2idx = np.load('../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-word2idx.npy').item()
-        self.target_idx2word = np.load('../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-idx2word.npy').item()
+        self.target_word2idx = np.load(
+            '../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-word2idx.npy').item()
+        self.target_idx2word = np.load(
+            '../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-target-idx2word.npy').item()
         context = np.load('../chatbot_train/models/' + DATA_SET_NAME + '/word-glove-context.npy').item()
         self.max_encoder_seq_length = context['encoder_max_seq_length']
         self.max_decoder_seq_length = context['decoder_max_seq_length']
@@ -161,5 +164,5 @@ class GunthercoxWordGloveChatBot(object):
 
 
 if __name__ == '__main__':
-    model = GunthercoxWordGloveChatBot()
+    model = CornellWordGloveChatBot()
     model.test_run()
