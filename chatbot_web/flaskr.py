@@ -98,7 +98,7 @@ def gunthercox_char_reply():
             gunthercox_char_chat_bot_conversations.append('YOU: ' + sent)
             reply = gunthercox_char_chat_bot.reply(sent)
             gunthercox_char_chat_bot_conversations.append('BOT: ' + reply)
-    return render_template('cornell_char_reply.html', conversations=gunthercox_char_chat_bot_conversations)
+    return render_template('gunthercox_char_reply.html', conversations=gunthercox_char_chat_bot_conversations)
 
 
 @app.route('/gunthercox_word_reply', methods=['POST', 'GET'])
@@ -115,7 +115,7 @@ def gunthercox_word_reply():
             gunthercox_word_chat_bot_conversations.append('YOU: ' + sent)
             reply = gunthercox_word_chat_bot.reply(sent)
             gunthercox_word_chat_bot_conversations.append('BOT: ' + reply)
-    return render_template('cornell_word_reply.html', conversations=gunthercox_word_chat_bot_conversations)
+    return render_template('gunthercox_word_reply.html', conversations=gunthercox_word_chat_bot_conversations)
 
 
 @app.route('/gunthercox_word_glove_reply', methods=['POST', 'GET'])
@@ -132,7 +132,7 @@ def gunthercox_word_glove_reply():
             gunthercox_word_glove_chat_bot_conversations.append('YOU: ' + sent)
             reply = gunthercox_word_glove_chat_bot.reply(sent)
             gunthercox_word_glove_chat_bot_conversations.append('BOT: ' + reply)
-    return render_template('cornell_word_reply.html', conversations=gunthercox_word_chat_bot_conversations)
+    return render_template('gunthercox_word_glove_reply.html', conversations=gunthercox_word_glove_chat_bot_conversations)
 
 
 @app.route('/cornell_word_glove_reply', methods=['POST', 'GET'])
@@ -149,7 +149,7 @@ def cornell_word_glove_reply():
             cornell_word_glove_chat_bot_conversations.append('YOU: ' + sent)
             reply = cornell_word_glove_chat_bot.reply(sent)
             cornell_word_glove_chat_bot_conversations.append('BOT: ' + reply)
-    return render_template('cornell_word_reply.html', conversations=cornell_word_chat_bot_conversations)
+    return render_template('cornell_word_glove_reply.html', conversations=cornell_word_glove_chat_bot_conversations)
 
 
 @app.route('/chatbot_reply', methods=['POST', 'GET'])
