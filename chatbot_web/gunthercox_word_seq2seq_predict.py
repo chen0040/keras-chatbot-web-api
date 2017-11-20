@@ -111,6 +111,9 @@ class GunthercoxWordChatBot(object):
         print(self.reply('Have you heard the news?'))
 
 
-if __name__ == '__main__':
+def main():
     model = GunthercoxWordChatBot()
     model.test_run()
+
+if __name__ == '__main__':
+    main()

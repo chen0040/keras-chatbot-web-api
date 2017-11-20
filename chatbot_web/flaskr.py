@@ -15,22 +15,11 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 cornell_char_chat_bot = CornellCharChatBot()
-cornell_char_chat_bot.test_run()
-
 cornell_word_chat_bot = CornellWordChatBot()
-cornell_word_chat_bot.test_run()
-
 gunthercox_char_chat_bot = GunthercoxCharChatBot()
-gunthercox_char_chat_bot.test_run()
-
 gunthercox_word_chat_bot = GunthercoxWordChatBot()
-gunthercox_word_chat_bot.test_run()
-
 gunthercox_word_glove_chat_bot = GunthercoxWordGloveChatBot()
-gunthercox_word_glove_chat_bot.test_run()
-
 cornell_word_glove_chat_bot = CornellWordGloveChatBot()
-cornell_word_glove_chat_bot.test_run()
 
 cornell_char_chat_bot_conversations = []
 cornell_word_chat_bot_conversations = []
@@ -191,5 +180,14 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-if __name__ == '__main__':
+def main():
+    cornell_char_chat_bot.test_run()
+    cornell_word_chat_bot.test_run()
+    cornell_word_glove_chat_bot.test_run()
+    gunthercox_char_chat_bot.test_run()
+    gunthercox_word_chat_bot.test_run()
+    gunthercox_word_glove_chat_bot.test_run()
     app.run(debug=True)
+
+if __name__ == '__main__':
+    main()

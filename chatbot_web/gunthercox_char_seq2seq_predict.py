@@ -97,6 +97,9 @@ class GunthercoxCharChatBot(object):
         print(self.reply('Hi'))
 
 
-if __name__ == '__main__':
+def main():
     model = GunthercoxCharChatBot()
     model.test_run()
+
+if __name__ == '__main__':
+    main()

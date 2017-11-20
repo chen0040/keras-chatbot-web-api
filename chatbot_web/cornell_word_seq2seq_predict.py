@@ -100,6 +100,9 @@ class CornellWordChatBot(object):
         print(self.reply('Get out!'))
 
 
-if __name__ == '__main__':
+def main():
     model = CornellWordChatBot()
     model.test_run()
+
+if __name__ == '__main__':
+    main()

@@ -90,6 +90,9 @@ class CornellCharChatBot(object):
         print(self.reply('do you listen to this crap?'))
 
 
-if __name__ == '__main__':
+def main():
     model = CornellCharChatBot()
     model.test_run()
+
+if __name__ == '__main__':
+    main()

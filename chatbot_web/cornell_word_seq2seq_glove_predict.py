@@ -163,6 +163,9 @@ class CornellWordGloveChatBot(object):
         print(self.reply('Have you heard the news?'))
 
 
-if __name__ == '__main__':
+def main():
     model = CornellWordGloveChatBot()
     model.test_run()
+
+if __name__ == '__main__':
+    main()
