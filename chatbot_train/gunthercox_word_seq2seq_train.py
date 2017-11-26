@@ -2,6 +2,7 @@ from keras.models import Model
 from keras.layers.recurrent import LSTM
 from keras.layers import Dense, Input, Embedding
 from keras.preprocessing.sequence import pad_sequences
+from keras.callbacks import ModelCheckpoint
 from collections import Counter
 import nltk
 import numpy as np
@@ -17,6 +18,7 @@ MAX_INPUT_SEQ_LENGTH = 30
 MAX_TARGET_SEQ_LENGTH = 30
 MAX_VOCAB_SIZE = 600
 DATA_DIR_PATH = 'data/gunthercox'
+WEIGHT_FILE_PATH = 'models/gunthercox/word-weights.h5'
 
 input_counter = Counter()
 target_counter = Counter()
@@ -160,6 +162,9 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
+json = model.to_json()
+open('models/gunthercox/word-architecture.json', 'w').write(json)
+
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(encoder_input_data, target_texts, test_size=0.2, random_state=42)
 
 print(len(Xtrain))
@@ -171,10 +176,10 @@ test_gen = generate_batch(Xtest, Ytest)
 train_num_batches = len(Xtrain) // BATCH_SIZE
 test_num_batches = len(Xtest) // BATCH_SIZE
 
+checkpoint = ModelCheckpoint(filepath=WEIGHT_FILE_PATH, save_best_only=True)
+
 model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                     epochs=NUM_EPOCHS,
-                    verbose=1, validation_data=test_gen, validation_steps=test_num_batches)
+                    verbose=1, validation_data=test_gen, validation_steps=test_num_batches, callbacks=[checkpoint])
 
-json = model.to_json()
-open('models/gunthercox/word-architecture.json', 'w').write(json)
-model.save_weights('models/gunthercox/word-weights.h5')
+model.save_weights(WEIGHT_FILE_PATH)

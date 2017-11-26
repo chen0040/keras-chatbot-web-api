@@ -1,6 +1,7 @@
 from keras.models import Model
 from keras.layers.recurrent import LSTM
-from keras.layers import Dense, Input, Embedding
+from keras.layers import Dense, Input
+from keras.callbacks import ModelCheckpoint
 from keras.preprocessing.sequence import pad_sequences
 from collections import Counter
 import nltk
@@ -22,6 +23,7 @@ MAX_TARGET_SEQ_LENGTH = 30
 MAX_VOCAB_SIZE = 10000
 DATA_SET_NAME = 'gunthercox'
 DATA_DIR_PATH = 'data/gunthercox'
+WEIGHT_FILE_PATH = 'models/' + DATA_SET_NAME + '/word-glove-weights.h5'
 
 GLOVE_MODEL = "very_large_data/glove.6B." + str(GLOVE_EMBEDDING_SIZE) + "d.txt"
 WHITELIST = 'abcdefghijklmnopqrstuvwxyz1234567890?.,'
@@ -199,6 +201,9 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
+json = model.to_json()
+open('models/' + DATA_SET_NAME + '/word-glove-architecture.json', 'w').write(json)
+
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(input_texts_word2em, target_texts, test_size=0.2, random_state=42)
 
 print(len(Xtrain))
@@ -210,10 +215,10 @@ test_gen = generate_batch(Xtest, Ytest)
 train_num_batches = len(Xtrain) // BATCH_SIZE
 test_num_batches = len(Xtest) // BATCH_SIZE
 
+checkpoint = ModelCheckpoint(filepath=WEIGHT_FILE_PATH, save_best_only=True)
+
 model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                     epochs=NUM_EPOCHS,
-                    verbose=1, validation_data=test_gen, validation_steps=test_num_batches)
+                    verbose=1, validation_data=test_gen, validation_steps=test_num_batches, callbacks=[checkpoint])
 
-json = model.to_json()
-open('models/' + DATA_SET_NAME + '/word-glove-architecture.json', 'w').write(json)
-model.save_weights('models/' + DATA_SET_NAME + '/word-glove-weights.h5')
+model.save_weights(WEIGHT_FILE_PATH)
