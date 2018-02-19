@@ -187,7 +187,7 @@ def main():
     gunthercox_char_chat_bot.test_run()
     gunthercox_word_chat_bot.test_run()
     gunthercox_word_glove_chat_bot.test_run()
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
 
 if __name__ == '__main__':
     main()
